@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Morse Code Translator</title>
+</head>
+<body>
+  <h2>Morse Code Translator</h2>
+  <textarea id="i" rows="4" cols="40" placeholder="Type text or morse"></textarea><br>
+  <button onclick="t()">Translate</button><br><br>
+  <textarea id="o" rows="4" cols="40" readonly></textarea>
+
+  <script>
+    const m = {
+      A:'.-', B:'-...', C:'-.-.', D:'-..', E:'.', F:'..-.', G:'--.', H:'....',
+      I:'..', J:'.---', K:'-.-', L:'.-..', M:'--', N:'-.', O:'---', P:'.--.',
+      Q:'--.-', R:'.-.', S:'...', T:'-', U:'..-', V:'...-', W:'.--', X:'-..-',
+      Y:'-.--', Z:'--..', '1':'.----', '2':'..---', '3':'...--', '4':'....-',
+      '5':'.....', '6':'-....', '7':'--...', '8':'---..', '9':'----.', '0':'-----', ' ':'/'
+    };
+    const r = {};
+    for (let k in m) r[m[k]] = k;
+
+    let ctx;
+    const unit = 100;
+
+    function beep(duration) {
+      return new Promise(resolve => {
+        if (!ctx) {
+          ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.frequency.value = 800;
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start();
+        
+        setTimeout(() => {
+          osc.stop();
+          setTimeout(resolve, unit);
+        }, duration);
+      });
+    }
+
+    function wait(duration) {
+      return new Promise(resolve => setTimeout(resolve, duration));
+    }
+
+    async function t() {
+      let a = document.getElementById('i').value.trim();
+      let b = document.getElementById('o');
+      
+      if (!a) {
+        b.value = '';
+        return;
+      }
+      
+   
+      if (a.includes('.') || a.includes('-')) {
+        b.value = a.split(' ').map(c => r[c] || '').join('').replace(/\//g, ' ');
+        return;
+      }
+      
+      let morse = a.toUpperCase().split('').map(c => m[c] || '').join(' ');
+      b.value = morse;
+    
+      for (let symbol of morse) {
+        if (symbol === '.') {
+          await beep(unit);
+        } else if (symbol === '-') {
+          await beep(unit * 3);
+        } else if (symbol === ' ') {
+          await wait(unit * 2);
+        }
+      }
+    }
+  </script>
+</body>
+</html>//istg i didnt use any frameworks or libraries for this,i just wanted to make a simple morse code translator i made in 1 hr and i wanted to share it with you guys, so here it is,hope you like it, and pls give me a feedback if you have any suggestions for improvement thanks! - remove the spaces and unnessary stuff to get it under 3 kb 
+
